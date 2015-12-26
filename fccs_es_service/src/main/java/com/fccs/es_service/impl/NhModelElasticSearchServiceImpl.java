@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -28,37 +26,22 @@ import com.fccs.es_api.bean.NhFloorIssue;
 import com.fccs.es_api.exception.EsException;
 import com.fccs.es_api.service.NhModelElasticSearchService;
 import com.fccs.es_api.vo.EsPageBean;
-import com.fccs.es_service.util.ElasticSearchUtil;
+import com.fccs.es_service.frame.SearchTemplate;
 import com.fccs.es_service.util.MapUtil;
 
 
 
-public class NhModelElasticSearchServiceImpl implements NhModelElasticSearchService {
+public class NhModelElasticSearchServiceImpl extends SearchTemplate implements NhModelElasticSearchService {
 
 	@Override
 	public EsPageBean<Map<String, Object>> getFloorSearchList(Map<String, Object> map, int pageNow, int pageSize)  throws EsException {
-		if (pageNow <= 0 || pageSize <= 0) {
-			throw new EsException("-------> 参数有错误 <-------");
-		}
-		Client client = ElasticSearchUtil.getClient();
-		SearchRequestBuilder searchRequestBuilder = client.prepareSearch("oracle_fccs").setTypes("model");
-		
-		this.setQuery(searchRequestBuilder, map);
-		this.setFilter(searchRequestBuilder, map);
-		this.addSort(searchRequestBuilder, map);
-		
-		int esFrom = pageSize * (pageNow - 1);
-		SearchResponse response = searchRequestBuilder.setFrom(esFrom).setSize(pageSize).setExplain(true).execute().actionGet();
-		SearchHits hits = response.getHits();
-		List<Map<String, Object>> items = this.processResponse(hits);
-		long totalHits = hits.getTotalHits();
-		int totalRecord = Integer.valueOf(String.valueOf(totalHits));
-		int totalPage = (totalRecord - 1)/pageSize + 1;
-		return new EsPageBean<Map<String, Object>>(pageSize, pageNow, totalPage, totalRecord, items);
+		return super.doSearch("oracle_fccs", "model", pageNow, pageSize, map);
 	}
 	
 
-	private void setQuery(SearchRequestBuilder searchRequestBuilder, Map<String, Object> map) {
+	
+	@Override
+	protected void setQuery(SearchRequestBuilder searchRequestBuilder, Map<String, Object> map) {
 		BoolQueryBuilder totalQuery = QueryBuilders.boolQuery();
 		
 		//floor,houseframe,houseuse,buildingtype
@@ -97,7 +80,8 @@ public class NhModelElasticSearchServiceImpl implements NhModelElasticSearchServ
 		
 	}
 
-	private void setFilter(SearchRequestBuilder searchRequestBuilder, Map<String, Object> map) {
+	@Override
+	protected void setFilter(SearchRequestBuilder searchRequestBuilder, Map<String, Object> map) {
 		int count = 0;
 		BoolFilterBuilder totalFilter = FilterBuilders.boolFilter();
 		
@@ -219,7 +203,8 @@ public class NhModelElasticSearchServiceImpl implements NhModelElasticSearchServ
 		}
 	}
 	
-	private void addSort(SearchRequestBuilder searchRequestBuilder, Map<String, Object> map) {
+	@Override
+	protected void addSort(SearchRequestBuilder searchRequestBuilder, Map<String, Object> map) {
 		int order = MapUtil.toInt(map, "order");
 		switch (order) {
 			case 1 : 
@@ -255,7 +240,8 @@ public class NhModelElasticSearchServiceImpl implements NhModelElasticSearchServ
 		}
 	}
 	
-	private List<Map<String, Object>> processResponse(SearchHits hits) throws EsException {
+	@Override
+	protected List<Map<String, Object>> processResponse(SearchHits hits) throws EsException {
 		List<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
 		for(int i = 0; i < hits.hits().length; i++) {
 			Map<String, Object> map = hits.getAt(i).sourceAsMap();
