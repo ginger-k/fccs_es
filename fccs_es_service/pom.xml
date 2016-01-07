@@ -12,31 +12,57 @@
   		<dependency>  
             <groupId>com.fccs.es</groupId>
     		<artifactId>fccs_es_api</artifactId>  
-            <version>${project.version}</version>  
+            <version>${project.version}</version>
+            <!-- <exclusions>
+            	<exclusion>
+	            	<groupId>org.springframework</groupId>
+					<artifactId>spring-webmvc</artifactId>
+            	</exclusion>
+            </exclusions>  --> 
         </dependency>  
-		<!-- JSP相关 -->
-		<!-- <dependency>
-			<groupId>jstl</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
+        
+		<!-- 单元测试 -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- log4j -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+		<!-- apache -->
+		<dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-lang3</artifactId>
+		</dependency>
+		<!-- elasticsearch -->
+  		<dependency>
+		  <groupId>org.elasticsearch</groupId>
+		  <artifactId>elasticsearch</artifactId>
+		</dependency>
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<scope>provided</scope>
-			<version>2.5</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<scope>provided</scope>
-			<version>2.0</version>
-		</dependency> -->
-		<!-- pinyin处理 -->
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+		</dependency>
+		<!-- 拼音 -->
 		<dependency>
 		  <groupId>net.sourceforge</groupId>
 		  <artifactId>pinyin4j</artifactId>
-		  <version>2.5.0</version>
 		  <classifier>jar</classifier>
 		</dependency>
 	</dependencies>

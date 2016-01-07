@@ -6,7 +6,6 @@
     <version>1.0.0</version>
   </parent>
   <artifactId>fccs_es_api</artifactId>
-  <version>1.0.1</version>
   
   <distributionManagement> 
 	<!-- 上传到宿主仓库的releases -->
@@ -22,5 +21,12 @@
 	    <url>http://172.16.150.82:8088/nexus/content/repositories/snapshots/</url> 
 	</snapshotRepository> 
   </distributionManagement>
+  
+  <dependencies>
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-webmvc</artifactId>
+	</dependency>
+  </dependencies>
   
 </project>

@@ -3,7 +3,7 @@ package com.fccs.es_service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+//import org.junit.Test;
 
 import com.fccs.es_api.exception.EsException;
 import com.fccs.es_api.vo.EsPageBean;
@@ -11,7 +11,7 @@ import com.fccs.es_service.impl.GeoSearchServiceImpl;
 
 public class GeoServiceTest {
 
-	@Test
+//	@Test
 	public void test1() throws EsException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("distance", 2000);
