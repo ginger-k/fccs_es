@@ -6,4 +6,21 @@
     <version>1.0.0</version>
   </parent>
   <artifactId>fccs_es_api</artifactId>
+  <version>1.0.1</version>
+  
+  <distributionManagement> 
+	<!-- 上传到宿主仓库的releases -->
+	<repository> 
+	    <id>releases</id> 
+	    <name>Internal Releases</name> 
+	    <url>http://172.16.150.82:8088/nexus/content/repositories/releases/</url> 
+	</repository> 
+	<!-- 上传到宿主仓库的snapshots -->
+	<snapshotRepository> 
+	    <id>snapshots</id> 
+	    <name>Internal Snapshots</name> 
+	    <url>http://172.16.150.82:8088/nexus/content/repositories/snapshots/</url> 
+	</snapshotRepository> 
+  </distributionManagement>
+  
 </project>

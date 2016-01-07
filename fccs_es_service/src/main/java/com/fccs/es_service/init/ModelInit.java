@@ -108,7 +108,7 @@ public class ModelInit {
 	 */
 	public static void deleteIndex() {
 		Client client = ElasticSearchUtil.getClient();
-		client.admin().indices().prepareDelete("oracle_fccs").execute().actionGet();
+		client.admin().indices().prepareDelete("floor").execute().actionGet();
 		client.close();
 	}
  	

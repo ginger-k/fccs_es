@@ -15,13 +15,13 @@ public class GeoServiceTest {
 	public void test1() throws EsException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("distance", 2000);
-		map.put("latitude", 30.729406795446);
-		map.put("longitude", 120.78264647566);
+		map.put("latitude", 30.753955894612);
+		map.put("longitude", 120.79773351903);
 		long start = System.currentTimeMillis();
 		GeoSearchServiceImpl geoService = new GeoSearchServiceImpl();
 		long end = System.currentTimeMillis();
 		System.out.println("花费时间：" + (end - start) + "ms");
-		EsPageBean<Map<String,Object>> esPageBean = geoService.doSearch("oracle_fccs", "floor", 1, 100, map);
+		EsPageBean<Map<String,Object>> esPageBean = geoService.getGeoSearchList(map, 1, 100);
 		System.out.println("totalPage: " + esPageBean.getTotalPage());
 		System.out.println("totalRecord: " + esPageBean.getTotalRecord());
 		List<Map<String,Object>> items = esPageBean.getItems();

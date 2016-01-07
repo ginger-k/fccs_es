@@ -4,10 +4,11 @@
   <artifactId>fccs_es</artifactId>
   <version>1.0.0</version>
   <packaging>pom</packaging>
+  
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  	<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
   </properties>
+  
   <modules>
   	<module>fccs_es_api</module>
   	<module>fccs_es_service</module>

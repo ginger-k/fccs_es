@@ -241,7 +241,7 @@ public class NhModelElasticSearchServiceImpl extends SearchTemplate implements N
 	}
 	
 	@Override
-	protected List<Map<String, Object>> processResponse(SearchHits hits) throws EsException {
+	protected List<Map<String, Object>> processSearchHits(SearchHits hits, Map<String, Object> params) throws EsException {
 		List<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
 		for(int i = 0; i < hits.hits().length; i++) {
 			Map<String, Object> map = hits.getAt(i).sourceAsMap();

@@ -7,7 +7,7 @@ import java.util.Random;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.junit.Test;
+//import org.junit.Test;
 
 import com.fccs.es_service.util.ElasticSearchUtil;
 
@@ -16,7 +16,7 @@ public class GeoInitTest {
 	/*
 	 * 初始化mapping
 	 */
-	@Test
+//	@Test
 	public void initMapping() throws Exception {
 		Client client = ElasticSearchUtil.getClient();
 		client.admin().indices().prepareCreate("oracle_fccs2").execute().actionGet(); //index
@@ -35,7 +35,7 @@ public class GeoInitTest {
 	/*
 	 * 初始化index
 	 */
-	@Test
+//	@Test
 	public void initIndex() throws Exception {
 		Client client = ElasticSearchUtil.getClient();
 		double lat = 39.929986;
@@ -65,7 +65,7 @@ public class GeoInitTest {
 	}
 
 	
-	@Test
+//	@Test
 	public void deleteIndex() {
 		Client client = ElasticSearchUtil.getClient();
 		client.admin().indices().prepareDelete("floor").execute().actionGet();

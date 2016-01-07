@@ -52,9 +52,9 @@ public class NhFloorElasticSearchServiceImpl implements NhFloorElasticSearchServ
 		this.addSort(searchRequestBuilder, conditions);
 		int esFrom = pageSize * (pageNow - 1);
 		//添加高亮
-		searchRequestBuilder.addHighlightedField("floor");
-		searchRequestBuilder.setHighlighterPreTags("<font color='red'>");
-		searchRequestBuilder.setHighlighterPostTags("</font>");
+		searchRequestBuilder.addHighlightedField("floor")
+					.setHighlighterPreTags("<font color='red'>")
+					.setHighlighterPostTags("</font>");
 		SearchResponse response = searchRequestBuilder.setFrom(esFrom).setSize(pageSize)
 									.setExplain(true).execute().actionGet();
 		SearchHits hits = response.getHits();
