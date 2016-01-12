@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -28,7 +29,6 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
 import com.fccs.es_api.bean.NhFloorIssue;
-import com.fccs.es_api.exception.EsException;
 import com.fccs.es_api.service.NhFloorElasticSearchService;
 import com.fccs.es_api.vo.EsPageBean;
 import com.fccs.es_service.util.ElasticSearchUtil;
@@ -36,33 +36,40 @@ import com.fccs.es_service.util.MapUtil;
 import com.fccs.es_service.util.StringUtil;
 
 public class NhFloorElasticSearchServiceImpl implements NhFloorElasticSearchService {
+	
+	private static Logger log = Logger.getLogger(NhFloorElasticSearchServiceImpl.class);
 
 	@Override
-	public EsPageBean<NhFloorIssue> getFloorSearchList(Map<String, Object> conditions, int pageNow, int pageSize) throws EsException {
-		if (pageNow <= 0 || pageSize <= 0) {
-			throw new EsException("-------> 参数有错误 <-------");
-		}
-		Client client = ElasticSearchUtil.getClient();
-		SearchRequestBuilder searchRequestBuilder = client.prepareSearch("oracle_fccs").setTypes("floor");
+	public EsPageBean<NhFloorIssue> getFloorSearchList(Map<String, Object> conditions, int pageNow, int pageSize) {
 		try {
-			this.setQuery(searchRequestBuilder, conditions);
-		} catch (ParseException e) {
-			e.printStackTrace();
+			if (pageNow <= 0 || pageSize <= 0) {
+				throw new IllegalArgumentException("-------> 参数有错误 <-------");
+			}
+			Client client = ElasticSearchUtil.getClient();
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch("oracle_fccs").setTypes("floor");
+			try {
+				this.setQuery(searchRequestBuilder, conditions);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			this.addSort(searchRequestBuilder, conditions);
+			int esFrom = pageSize * (pageNow - 1);
+			//添加高亮
+			searchRequestBuilder.addHighlightedField("floor")
+						.setHighlighterPreTags("<font color='red'>")
+						.setHighlighterPostTags("</font>");
+			SearchResponse response = searchRequestBuilder.setFrom(esFrom).setSize(pageSize)
+										.setExplain(true).execute().actionGet();
+			SearchHits hits = response.getHits();
+			List<NhFloorIssue> list = this.processBean(hits);
+			long totalHits = hits.getTotalHits();
+			int totalRecord = Integer.valueOf(String.valueOf(totalHits));
+			int totalPage = (totalRecord - 1)/pageSize + 1;
+			return new EsPageBean<NhFloorIssue>(pageSize, pageNow, totalPage, totalRecord, list);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return null;
 		}
-		this.addSort(searchRequestBuilder, conditions);
-		int esFrom = pageSize * (pageNow - 1);
-		//添加高亮
-		searchRequestBuilder.addHighlightedField("floor")
-					.setHighlighterPreTags("<font color='red'>")
-					.setHighlighterPostTags("</font>");
-		SearchResponse response = searchRequestBuilder.setFrom(esFrom).setSize(pageSize)
-									.setExplain(true).execute().actionGet();
-		SearchHits hits = response.getHits();
-		List<NhFloorIssue> list = this.processBean(hits);
-		long totalHits = hits.getTotalHits();
-		int totalRecord = Integer.valueOf(String.valueOf(totalHits));
-		int totalPage = (totalRecord - 1)/pageSize + 1;
-		return new EsPageBean<NhFloorIssue>(pageSize, pageNow, totalPage, totalRecord, list);
 	}
 	
 	

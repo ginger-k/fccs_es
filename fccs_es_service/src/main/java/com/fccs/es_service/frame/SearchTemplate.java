@@ -14,34 +14,33 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.highlight.HighlightField;
 
-import com.fccs.es_api.exception.EsException;
 import com.fccs.es_api.vo.EsPageBean;
 import com.fccs.es_service.util.ElasticSearchUtil;
 
 public abstract class SearchTemplate {
 	
-	protected EsPageBean<Map<String, Object>> doSearch(String index, String type, int pageNow, int pageSize, Map<String, Object> params) throws EsException {
-		if (StringUtils.isBlank(index) || StringUtils.isBlank(type) || pageNow <= 0 || pageSize <= 0) {
-			throw new EsException("-------> 参数有错误 <-------");
-		}
-		Client client = ElasticSearchUtil.getClient();
-		SearchRequestBuilder searchRequestBuilder = client.prepareSearch(index).setTypes(type);
-		
-		this.setQuery(searchRequestBuilder, params);
-		this.setFilter(searchRequestBuilder, params);
-		this.addSort(searchRequestBuilder, params);
-		this.addHighlighted(searchRequestBuilder, params);
-		
-		int esFrom = pageSize * (pageNow - 1);
-		SearchResponse response = searchRequestBuilder.setFrom(esFrom).setSize(pageSize).setExplain(true).execute().actionGet();
-		SearchHits hits = response.getHits();
-		
-		List<Map<String, Object>> items = this.processSearchHits(hits, params);
-		
-		long totalHits = hits.getTotalHits();
-		int totalRecord = Integer.valueOf(String.valueOf(totalHits));
-		int totalPage = (totalRecord - 1)/pageSize + 1;
-		return new EsPageBean<Map<String, Object>>(pageSize, pageNow, totalPage, totalRecord, items);
+	protected EsPageBean<Map<String, Object>> doSearch(String index, String type, int pageNow, int pageSize, Map<String, Object> params) throws Exception {
+			if (StringUtils.isBlank(index) || StringUtils.isBlank(type) || pageNow <= 0 || pageSize <= 0) {
+				throw new IllegalArgumentException("-------> 参数有错误 <-------"); 
+			}
+			Client client = ElasticSearchUtil.getClient();
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(index).setTypes(type);
+			
+			this.setQuery(searchRequestBuilder, params);
+			this.setFilter(searchRequestBuilder, params);
+			this.addSort(searchRequestBuilder, params);
+			this.addHighlighted(searchRequestBuilder, params);
+			
+			int esFrom = pageSize * (pageNow - 1);
+			SearchResponse response = searchRequestBuilder.setFrom(esFrom).setSize(pageSize).setExplain(true).execute().actionGet();
+			SearchHits hits = response.getHits();
+			
+			List<Map<String, Object>> items = this.processSearchHits(hits, params);
+			
+			long totalHits = hits.getTotalHits();
+			int totalRecord = Integer.valueOf(String.valueOf(totalHits));
+			int totalPage = (totalRecord - 1)/pageSize + 1;
+			return new EsPageBean<Map<String, Object>>(pageSize, pageNow, totalPage, totalRecord, items);
 	}
 	
 	protected void setQuery(SearchRequestBuilder searchRequestBuilder, Map<String, Object> params) {
@@ -56,7 +55,7 @@ public abstract class SearchTemplate {
 	protected void addHighlighted(SearchRequestBuilder searchRequestBuilder, Map<String, Object> params) {
 	}
 	
-	protected List<Map<String, Object>> processSearchHits(SearchHits hits, Map<String, Object> params) throws EsException {
+	protected List<Map<String, Object>> processSearchHits(SearchHits hits, Map<String, Object> params) {
 		//使用数组遍历的目的：是不是数据遍历更快
 		SearchHit[] hitsArray = hits.hits();
 		List<Map<String,Object>> list = new ArrayList<Map<String, Object>>();

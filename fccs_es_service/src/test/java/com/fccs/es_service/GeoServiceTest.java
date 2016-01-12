@@ -5,14 +5,13 @@ import java.util.List;
 import java.util.Map;
 //import org.junit.Test;
 
-import com.fccs.es_api.exception.EsException;
 import com.fccs.es_api.vo.EsPageBean;
 import com.fccs.es_service.impl.GeoSearchServiceImpl;
 
 public class GeoServiceTest {
 
 //	@Test
-	public void test1() throws EsException {
+	public void test1() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("distance", 2000);
 		map.put("latitude", 30.753955894612);

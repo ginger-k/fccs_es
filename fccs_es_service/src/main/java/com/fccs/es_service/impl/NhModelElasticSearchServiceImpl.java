@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -23,7 +24,6 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
 import com.fccs.es_api.bean.NhFloorIssue;
-import com.fccs.es_api.exception.EsException;
 import com.fccs.es_api.service.NhModelElasticSearchService;
 import com.fccs.es_api.vo.EsPageBean;
 import com.fccs.es_service.frame.SearchTemplate;
@@ -33,9 +33,16 @@ import com.fccs.es_service.util.MapUtil;
 
 public class NhModelElasticSearchServiceImpl extends SearchTemplate implements NhModelElasticSearchService {
 
+	private Logger log = Logger.getLogger(NhModelElasticSearchServiceImpl.class);
+	
 	@Override
-	public EsPageBean<Map<String, Object>> getFloorSearchList(Map<String, Object> map, int pageNow, int pageSize)  throws EsException {
-		return super.doSearch("oracle_fccs", "model", pageNow, pageSize, map);
+	public EsPageBean<Map<String, Object>> getFloorSearchList(Map<String, Object> map, int pageNow, int pageSize) {
+		try {
+			return super.doSearch("oracle_fccs", "model", pageNow, pageSize, map);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return null;
+		}
 	}
 	
 
@@ -241,7 +248,7 @@ public class NhModelElasticSearchServiceImpl extends SearchTemplate implements N
 	}
 	
 	@Override
-	protected List<Map<String, Object>> processSearchHits(SearchHits hits, Map<String, Object> params) throws EsException {
+	protected List<Map<String, Object>> processSearchHits(SearchHits hits, Map<String, Object> params) {
 		List<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
 		for(int i = 0; i < hits.hits().length; i++) {
 			Map<String, Object> map = hits.getAt(i).sourceAsMap();
@@ -251,7 +258,7 @@ public class NhModelElasticSearchServiceImpl extends SearchTemplate implements N
 		return list;
 	}
 	
-	private void updateModelResultRefFloor(Map<String, Object> map) throws EsException {
+	private void updateModelResultRefFloor(Map<String, Object> map) {
 		NhFloorElasticSearchServiceImpl floorService = new NhFloorElasticSearchServiceImpl();
 		Integer issueId = (Integer) map.get("issueId");
 		Integer siteId = (Integer) map.get("siteId");

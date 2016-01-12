@@ -17,7 +17,6 @@ import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.fccs.es_api.exception.EsException;
 import com.fccs.es_api.vo.EsPageBean;
 import com.fccs.es_service.frame.SearchTemplate;
 
@@ -25,8 +24,12 @@ import com.fccs.es_service.frame.SearchTemplate;
 
 public class GeoSearchServiceImpl extends SearchTemplate {
 	
-	public EsPageBean<Map<String, Object>> getGeoSearchList(Map<String, Object> map, int pageNow, int pageSize)  throws EsException {
-		return super.doSearch("oracle_fccs", "model", pageNow, pageSize, map);
+	public EsPageBean<Map<String, Object>> getGeoSearchList(Map<String, Object> map, int pageNow, int pageSize) {
+		try {
+			return super.doSearch("oracle_fccs", "model", pageNow, pageSize, map);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -72,7 +75,7 @@ public class GeoSearchServiceImpl extends SearchTemplate {
 	}
 	
 	@Override
-	protected List<Map<String, Object>> processSearchHits(SearchHits hits, Map<String, Object> params) throws EsException {
+	protected List<Map<String, Object>> processSearchHits(SearchHits hits, Map<String, Object> params) {
 		SearchHit[] hitsArray = hits.hits();
 		List<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
 		for (SearchHit hit : hitsArray) {
