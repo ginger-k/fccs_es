@@ -32,71 +32,48 @@ public class NhFloorGeoSearchServiceImpl implements NhFloorGeoSearchService {
 	private static final Logger log = Logger.getLogger(NhFloorGeoSearchServiceImpl.class);
 	
 	@Override
-	public EsPageBean<NhFloorIssue> getFloorSearchList(Map<String, Object> map, int pageNow, int pageSize) {
+	public EsPageBean<NhFloorIssue> getFloorSearchList(int pageNow, int pageSize, int distance, double latitude, double longitude) {
 		try {
-			if (pageNow <= 0 || pageSize <= 0) {
+			if (pageNow <= 0 || pageSize <= 0 || distance < 0 || latitude < 0 || longitude < 0) {
 				throw new IllegalArgumentException("-------> 参数有错误 <-------");
 			}
 			Client client = ElasticSearchUtil.getClient();
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch("oracle_fccs").setTypes("floor");
-			
-			if (this.setGeo(searchRequestBuilder, map)) {
-				int esFrom = pageSize * (pageNow - 1);
-				SearchResponse response = searchRequestBuilder.setFrom(esFrom).setSize(pageSize).setExplain(true).execute().actionGet();
-				SearchHits hits = response.getHits();
-				List<NhFloorIssue> list = this.processBean(hits, map);
-				long totalHits = hits.getTotalHits();
-				int totalRecord = Integer.valueOf(String.valueOf(totalHits));
-				int totalPage = (totalRecord - 1)/pageSize + 1;
-				return new EsPageBean<NhFloorIssue>(pageSize, pageNow, totalPage, totalRecord, list);
-			} else {
-				throw new Exception();
-			}
+			GeoDistanceRangeFilterBuilder geoDistance = FilterBuilders.geoDistanceRangeFilter("mapXY")
+					.point(latitude, longitude)
+					.gt("0m").lte(distance+"m")
+					.optimizeBbox("memory")                                 
+					.geoDistance(GeoDistance.ARC); 
+			searchRequestBuilder.setPostFilter(geoDistance);
+			GeoDistanceSortBuilder sort = SortBuilders.geoDistanceSort("mapXY");
+	        sort.unit(DistanceUnit.METERS);
+	        sort.order(SortOrder.ASC);
+	        sort.point(latitude, longitude);
+	        searchRequestBuilder.addSort(sort);
+			int esFrom = pageSize * (pageNow - 1);
+			SearchResponse response = searchRequestBuilder.setFrom(esFrom).setSize(pageSize).setExplain(true).execute().actionGet();
+			SearchHits hits = response.getHits();
+			List<NhFloorIssue> list = this.processBean(hits);
+			long totalHits = hits.getTotalHits();
+			int totalRecord = Integer.valueOf(String.valueOf(totalHits));
+			int totalPage = (totalRecord - 1)/pageSize + 1;
+			return new EsPageBean<NhFloorIssue>(pageSize, pageNow, totalPage, totalRecord, list);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			return null;
 		}
 	}
 
-	private boolean setGeo(SearchRequestBuilder searchRequestBuilder, Map<String, Object> map) {
-		Integer distance = (Integer) map.get("distance");
-		Double latitude = (Double) map.get("latitude");
-		Double longitude = (Double) map.get("longitude");
-		if (distance != null && distance > 0 && latitude != null && latitude > 0 && longitude != null && longitude > 0) {
-				GeoDistanceRangeFilterBuilder geoDistance = FilterBuilders.geoDistanceRangeFilter("mapXY")
-						.point(latitude, longitude)
-						.gt("0m").lte(distance+"m")
-						.optimizeBbox("memory")                                 
-						.geoDistance(GeoDistance.ARC); 
-				searchRequestBuilder.setPostFilter(geoDistance);
-				GeoDistanceSortBuilder sort = SortBuilders.geoDistanceSort("mapXY");
-		        sort.unit(DistanceUnit.METERS);
-		        sort.order(SortOrder.ASC);
-		        sort.point(latitude, longitude);
-		        searchRequestBuilder.addSort(sort);
-		        return true;
-		} 
-		return false;
-	}
-	
-	private List<NhFloorIssue> processBean(SearchHits hits, Map<String, Object> params) {
+	private List<NhFloorIssue> processBean(SearchHits hits) {
 		List<NhFloorIssue> list = new ArrayList<NhFloorIssue>();
 		for (SearchHit hit : hits) {
-				Map<String, Object> result = hit.sourceAsMap();
-				Integer distance = (Integer) params.get("distance");
-				if (distance != null && distance > 0) {
-					double latitude = (Double) params.get("latitude");
-					double longitude = (Double) params.get("longitude");
-					if (latitude > 0 && longitude > 0) {
-						// 获取距离值
-						Object[] geoValues = hit.getSortValues();
-						if (geoValues != null && geoValues.length > 0) {
-							result.put("geoDistance", (Double)geoValues[0]);
-						}
-					}
-				}
-				NhFloorIssue obj = this.innerProcess(result);
-				list.add(obj);
+			Map<String, Object> result = hit.sourceAsMap();
+			Object[] geoValues = hit.getSortValues();
+			if (geoValues != null && geoValues.length > 0) {
+				result.put("geoDistance", (Double)geoValues[0]);
+			}
+			NhFloorIssue obj = this.innerProcess(result);
+			list.add(obj);
 		}
 		return list;
 	}
