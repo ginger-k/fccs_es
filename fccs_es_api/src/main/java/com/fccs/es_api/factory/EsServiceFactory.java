@@ -4,12 +4,14 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 import com.fccs.es_api.constant.Constant;
 import com.fccs.es_api.service.NhFloorElasticSearchService;
+import com.fccs.es_api.service.NhFloorGeoSearchService;
 import com.fccs.es_api.service.NhModelElasticSearchService;
 
 public class EsServiceFactory {
 	
 	private static NhFloorElasticSearchService nhFloorElasticSearchService;
 	private static NhModelElasticSearchService nhModelElasticSearchService;
+	private static NhFloorGeoSearchService nhFloorGeoSearchService;
 	
 	//用户使用的时候，第一次加载，之后都不加载
 	public static synchronized NhFloorElasticSearchService createNhFloorElasticSearchService() {
@@ -24,6 +26,13 @@ public class EsServiceFactory {
 			nhModelElasticSearchService = getRemoteService("/sc/nhModelElasticSearchServiceHttp.sc", NhModelElasticSearchService.class);
 		} 
 		return nhModelElasticSearchService;
+	}
+	
+	public static synchronized NhFloorGeoSearchService createNhFloorGeoSearchService() {
+		if (nhFloorGeoSearchService == null) {
+			nhFloorGeoSearchService = getRemoteService("/sc/nhFloorGeoSearchServiceHttp.sc", NhFloorGeoSearchService.class);
+		}
+		return nhFloorGeoSearchService;
 	}
 	
 	@SuppressWarnings("unchecked")
